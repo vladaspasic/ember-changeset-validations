@@ -16,7 +16,7 @@ const Messages = Ember.ObjectProxy.extend({
   getMessage(key = '') {
     return this.get('mock').t(key);
   },
-  custom: '[CUSTOM] This is a custom message'
+  custom: '[CUSTOM] This is a custom message for {description} field'
 });
 
 module('Unit | Utility | get messages with container', {
@@ -43,7 +43,6 @@ test('it loads object class', function(assert) {
   // It has all the default messages
   Object.keys(defaultMessages).forEach(k => {
     assert.ok(Ember.get(messages, k));
-    assert.equal(Ember.get(messages, k), Ember.get(defaultMessages, k), `Missing message for ${k}`);
   });
 
   // Check for custom message which means we loaded the right file
@@ -54,6 +53,15 @@ test('it loads object class', function(assert) {
 
   // Check for custom message which means we loaded the right file
   assert.equal(messages.getMessage('key'), 'Message for key', 'It has a message from service');
+
+  // Check message hooks
+  assert.equal(messages.getMessageFor('custom', {
+    description: messages.getDescriptionFor('custom')
+  }), '[CUSTOM] This is a custom message for Custom field',
+    'Creates a validation message for custom field');  
+  assert.equal(messages.formatMessage('message {description}', {
+    description: messages.getDescriptionFor('presence')
+  }), 'message Presence', 'Formats message for a field');
 });
 
 test('it loads object instance', function(assert) {
@@ -63,7 +71,6 @@ test('it loads object instance', function(assert) {
   // It has all the default messages
   Object.keys(defaultMessages).forEach(k => {
     assert.ok(Ember.get(messages, k));
-    assert.equal(Ember.get(messages, k), Ember.get(defaultMessages, k), `Missing message for ${k}`);
   });
 
   // Check for custom message which means we loaded the right file
@@ -71,6 +78,15 @@ test('it loads object instance', function(assert) {
 
   // Check if the defaults are applied
   assert.deepEqual(Ember.get(messages, 'defaults'), defaultMessages, 'Missing default messages');
+
+  // Check message hooks
+  assert.equal(messages.getMessageFor('custom', {
+    description: messages.getDescriptionFor('custom')
+  }), '[CUSTOM] This is a custom message for Custom field',
+    'Creates a validation message for custom field');  
+  assert.equal(messages.formatMessage('message {description}', {
+    description: messages.getDescriptionFor('presence')
+  }), 'message Presence', 'Formats message for a field');
 });
 
 test('it uses a custom lookup function', function(assert) {
@@ -84,12 +100,22 @@ test('it uses a custom lookup function', function(assert) {
   // It has all the default messages
   Object.keys(defaultMessages).forEach(k => {
     assert.ok(Ember.get(messages, k));
-    assert.equal(Ember.get(messages, k), Ember.get(defaultMessages, k), `Missing message for ${k}`);
   });
 
   // Check for custom message which means we loaded the right file
   assert.ok(Ember.get(messages, 'custom'), 'It has the custom message');
   assert.equal(Ember.get(messages, 'custom-lookup'), 'Custom lookup', 'It has the custom lookup message');
+
+  // Check message hooks
+  assert.equal(messages.getMessageFor('custom', {
+    description: messages.getDescriptionFor('custom')
+  }), '[CUSTOM] This is a custom message for Custom field',
+    'Creates a validation message for custom field');
+  assert.equal(messages.getMessageFor('custom-lookup'), 'Custom lookup',
+    'Creates a validation message for Custom lookup field');
+  assert.equal(messages.formatMessage('message {description}', {
+    description: messages.getDescriptionFor('presence')
+  }), 'message Presence', 'Formats message for a field');
 });
 
 test('it loads plain object', function(assert) {
@@ -102,4 +128,9 @@ test('it loads plain object', function(assert) {
 
   // Check for custom message which means we loaded the right file
   assert.ok(Ember.get(messages, 'custom'), 'It has the custom message');
+
+  // Check message hooks
+  assert.equal(messages.formatMessage('message {description}', {
+    description: messages.getDescriptionFor('presence')
+  }), 'message Presence', 'Formats message for a field');
 });

@@ -3,7 +3,7 @@ import Ember from 'ember';
 import defaultMessages from 'ember-changeset-validations/utils/messages';
 import withDefaults from 'ember-changeset-validations/utils/with-defaults';
 
-const { A: emberArray, canInvoke, get, isNone, isPresent, typeOf } = Ember;
+const { A: emberArray, canInvoke, get, isNone, isPresent, run, typeOf } = Ember;
 const { keys } = Object;
 const matchRegex = /validations\/messages$/gi;
 
@@ -19,6 +19,36 @@ const mixin = Ember.Mixin.create({
    * @type {Object}
    */
   defaults: null,
+
+  getMessageFor(key = '', context = {}) {
+    return this.formatMessage(get(this, key), context);
+  },
+
+  /**
+   * Get a description for a specific attribute. You can define a `descriptionForKey` function
+   * to override the default behaviour and load your custom description.
+   *
+   * @param key {String} Attribute key
+   * @return {String}
+   */
+  getDescriptionFor(key = '') {
+    let value;
+
+    // Check if there is a custom lookup function defined
+    if (canInvoke(this, 'descriptionForKey')) {
+      value = this.descriptionForKey(key);
+    }
+    // Generate default description
+    if (isNone(value)) {
+      value = run(this.defaults, 'getDescriptionFor', key);
+    }
+
+    return value;
+  },
+
+  formatMessage(...args) {
+    return run(this.defaults, 'formatMessage', ...args);
+  },
 
   /**
    * Define a `messageForKey` method if you wish to implement your own custom message lookup.
