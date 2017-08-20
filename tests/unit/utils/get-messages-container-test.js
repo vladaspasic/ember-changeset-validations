@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import getMessages, { setContainer, reset } from 'ember-changeset-validations/utils/get-messages';
+import getMessages, { setContainer } from 'ember-changeset-validations/utils/get-messages';
 import defaultMessages from 'ember-changeset-validations/utils/messages';
 import { test, module } from 'ember-qunit';
 import buildRegistry from 'ember-test-helpers/build-registry';
@@ -32,7 +32,7 @@ module('Unit | Utility | get messages with container', {
     setContainer(this.container);
   },
   afterEach: function() {
-    reset();
+    setContainer(null);
   }
 });
 

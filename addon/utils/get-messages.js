@@ -144,9 +144,3 @@ export function setContainer(cont = null) {
   container = cont;
   cachedRef = null;
 }
-
-// used for testing
-export function reset() {
-  container = null;
-  cachedRef = null;
-}
